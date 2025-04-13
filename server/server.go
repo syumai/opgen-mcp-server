@@ -9,18 +9,19 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"go.1password.io/spg"
+	"golang.design/x/clipboard"
 )
 
 func NewServer() *server.MCPServer {
 	server := server.NewMCPServer(
 		"opgen",
-		"0.0.1",
+		"0.0.2",
 		server.WithLogging(),
 		server.WithRecovery(),
 	)
 
 	opgenCharactersTool := mcp.NewTool("generate_password_characters",
-		mcp.WithDescription("Generate secure passwords using characters. This is the general way to generate passwords."),
+		mcp.WithDescription("Generate secure passwords using characters and copy to the clipboard. This is the general way to generate passwords."),
 		mcp.WithNumber("length",
 			mcp.Description("Password length for characters recipe"),
 			mcp.DefaultNumber(float64(defaultCharRecipe.length)),
@@ -61,7 +62,7 @@ func NewServer() *server.MCPServer {
 	server.AddTool(opgenCharactersTool, charGeneratorHandler)
 
 	opgenWordsTool := mcp.NewTool("generate_password_words",
-		mcp.WithDescription("Generate secure passwords using words"),
+		mcp.WithDescription("Generate secure passwords using words and copy to the clipboard."),
 		mcp.WithNumber("size",
 			mcp.Description("Number of elements for words recipe"),
 			mcp.DefaultNumber(4),
@@ -94,6 +95,14 @@ func NewServer() *server.MCPServer {
 	server.AddTool(opgenWordsTool, wlGeneratorHandler)
 
 	return server
+}
+
+func copyPasswordToClipboard(pwd *spg.Password) (*mcp.CallToolResult, error) {
+	if err := clipboard.Init(); err != nil {
+		return nil, err
+	}
+	clipboard.Write(clipboard.FmtText, []byte(pwd.String()))
+	return mcp.NewToolResultText("Password generated and copied to clipboard"), nil
 }
 
 func convertCharacterClasses(classes []string, defaults []string) spg.CTFlag {
@@ -148,7 +157,7 @@ func charGeneratorHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 		return nil, err
 	}
 
-	return mcp.NewToolResultText(pwd.String()), nil
+	return copyPasswordToClipboard(pwd)
 }
 
 func convertWordList(list string) (*spg.WordList, error) {
@@ -189,5 +198,5 @@ func wlGeneratorHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		return nil, err
 	}
 
-	return mcp.NewToolResultText(pwd.String()), nil
+	return copyPasswordToClipboard(pwd)
 }

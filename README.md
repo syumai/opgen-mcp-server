@@ -1,10 +1,7 @@
 # opgen MCP Server
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server implementation for password generation, based on [1Password/spg/cmd/opgen](https://github.com/1Password/spg/tree/master/cmd/opgen).
-
-## Notice
-
-Generated passwords should never be shared in AI chat histories or unsecured channels. Please use local LLM.
+* A [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server implementation for password generation, based on [1Password/spg/cmd/opgen](https://github.com/1Password/spg/tree/master/cmd/opgen).
+* The generated password will be copied to the clipboard.
 
 ## Installation
 
